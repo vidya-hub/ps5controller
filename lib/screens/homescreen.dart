@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ps5controller/common_functions.dart';
 import 'package:ps5controller/main.dart';
 import 'package:ps5controller/screens/ButtonController.dart';
 import 'package:ps5controller/screens/gyrocontrollerscreen.dart';
@@ -50,7 +51,7 @@ class HomePage extends StatelessWidget {
                     builder: (context) {
                       return const ButtonController();
                     },
-                  ));
+                  )).then((value) => enableRotation());
                 },
               ),
             ),

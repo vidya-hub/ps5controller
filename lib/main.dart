@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:ps5controller/common_functions.dart';
 import 'package:ps5controller/screens/gyrocontrollerscreen.dart';
@@ -6,19 +8,18 @@ import 'package:socket_io_client/socket_io_client.dart';
 
 late final Socket socket;
 void main() async {
-  enableRotation();
   try {
     socketConnect().then((value) => {
           runApp(
             MyApp(),
-          )
+          ),
         });
   } catch (e) {
     print(e);
   }
 }
 
-String clientUrl = "http://192.168.0.131:3000";
+String clientUrl = "http://192.168.64.41:3000";
 Future socketConnect() async {
   socket = io(clientUrl, <String, dynamic>{
     "transports": ["websocket"],
@@ -26,12 +27,12 @@ Future socketConnect() async {
   });
   socket.connect();
   socket.on('connect', (data) {
-    debugPrint("here   ${socket.connected}");
+    log("here   ${socket.connected}");
   });
 }
 
 class MyApp extends StatelessWidget {
-  MyApp({
+  const MyApp({
     Key? key,
   }) : super(key: key);
 

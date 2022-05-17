@@ -1,9 +1,12 @@
 import 'dart:developer';
 
 import 'package:control_pad/control_pad.dart';
+import 'package:control_pad/models/pad_button_item.dart';
+import 'package:control_pad/views/circle_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ps5controller/common_functions.dart';
+import 'package:ps5controller/enums/buttonEnums.dart';
 import 'package:ps5controller/main.dart';
 
 class ButtonController extends StatefulWidget {
@@ -15,55 +18,69 @@ class ButtonController extends StatefulWidget {
 
 class _ButtonControllerState extends State<ButtonController> {
   @override
-  Widget build(BuildContext context) {
-    var isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
+  void initState() {
+    super.initState();
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
-      body: isPortrait
-          ? Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: const [
-                  Text(
-                    "Change device orientation to landscape",
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(
-                    height: 50,
-                  ),
-                  Icon(
-                    Icons.screen_rotation_sharp,
-                    color: Colors.blue,
-                    size: 50,
-                  ),
-                ],
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              ElevatedButton.icon(
+                onPressed: () {
+                  socket.emit("spacebuttonEvent");
+                },
+                icon: const Icon(Icons.speed_sharp),
+                label: const Text("Nitro"),
               ),
-            )
-          : Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                getJoyStickWidget(
-                  context,
-                  "Left",
-                  (double degrees, double distance) {
-                    getJoyStickMovement(degrees);
+              Container(
+                height: 200,
+                width: 300,
+                color: Colors.grey,
+                child: GestureDetector(
+                  child: getCircle(),
+                  onPanUpdate: (details) {
+                    var offSet = details.localPosition;
+                    Map<String, int>? finalOffSet = getFinalOffSet(offSet);
+                    if (finalOffSet != null) {
+                      log("$finalOffSet");
+                      socket.emit("joyStickData", finalOffSet);
+                    }
                   },
                 ),
-                getJoyStickWidget(
-                  context,
-                  "Right",
-                  (double degrees, double distance) {
-                    getJoyStickMovement(degrees);
-                  },
-                ),
-              ],
-            ),
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Map<String, int>? getFinalOffSet(Offset offSet) {
+    if (isInsideThePosition(offSet)) {
+      return {
+        "x": (offSet.dx - 150).toInt(),
+        "y": -1 * (offSet.dy - 100).toInt(),
+      };
+    }
+    return null;
+  }
+
+  bool isInsideThePosition(Offset offSet) {
+    return (offSet.dx < 300 && offSet.dx > 0) &&
+        (offSet.dy < 200 && offSet.dy > 0);
+  }
+
+  Widget getCircle() {
+    return const Icon(
+      Icons.circle,
+      size: 30,
     );
   }
 
@@ -79,6 +96,8 @@ class _ButtonControllerState extends State<ButtonController> {
         ),
         JoystickView(
           onDirectionChanged: onDirectionChanged,
+          interval: const Duration(milliseconds: 100),
+          showArrows: true,
         ),
         SizedBox(
           height: MediaQuery.of(context).size.height * 0.05,

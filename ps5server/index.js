@@ -8,6 +8,7 @@ app.use(bodyParser.json());
 app.get("/", (req, res) => {
   console.log("Hereee");
 });
+var screenDimension = robot.getScreenSize();
 
 socketIO.on("connection", async (client) => {
   console.log("Connected...", client.id);
@@ -25,12 +26,26 @@ socketIO.on("connection", async (client) => {
   Starting Chat
   */
 
+  client.on("joyStickData", async (joyStickData) => {
+    var mouseMap = getMousePosition();
+    // console.log(mouseMap);
+    // console.log(screenDimension.height, screenDimension.width);
+
+    // console.log(joyStickData);
+  });
+
   client.on("sendGyroData", async (data) => {
     console.log(data["y"]);
     socketIO.emit("getMessages", "New message Received");
   });
   client.on("sendButtonData", async (data) => {
+    console.log(data);
+    robot.keyTap(data);
     socketIO.emit("getMessages", "New message Received");
+  });
+  client.on("spacebuttonEvent", async (_) => {
+    robot.keyTap("space");
+    console.log("space");
   });
 });
 
@@ -40,30 +55,16 @@ httpServer.listen(port, function (err) {
   console.log("Listening on port", port);
 });
 
-/*
+var lerp = (current, target, factor) => {
+  let holder = current * (1 - factor) + target * factor;
+  holder = parseFloat(holder).toFixed(3);
+  return holder;
+};
 
-1. one socket continously listening to the CLIENT
-
-// create 
-
-2 . based on the client event it has to turn on left and right moves
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-*/
+function getMousePosition() {
+  var mouse = robot.getMousePos();
+  return {
+    x: mouse.x,
+    y: mouse.y,
+  };
+}
