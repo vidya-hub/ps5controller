@@ -4,6 +4,7 @@ class JoyStickModel {
 
   JoyStickModel({
     required this.degrees,
+    //
     required this.distance,
   });
 }
