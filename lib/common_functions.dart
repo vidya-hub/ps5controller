@@ -1,9 +1,7 @@
 import 'dart:developer';
-
 import 'package:flutter/services.dart';
 import 'package:ps5controller/enums/buttonEnums.dart';
 import 'package:ps5controller/main.dart';
-import 'package:ps5controller/model/joyStickData.dart';
 
 ButtonEnum getJoyStickMovement(double degrees) {
   if (degrees >= 45 && degrees < 135) {

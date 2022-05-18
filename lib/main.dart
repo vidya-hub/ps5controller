@@ -19,7 +19,7 @@ void main() async {
   }
 }
 
-String clientUrl = "http://192.168.64.41:3000";
+String clientUrl = "http://192.168.0.131:3000";
 Future socketConnect() async {
   socket = io(clientUrl, <String, dynamic>{
     "transports": ["websocket"],
@@ -39,10 +39,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-        ),
-        home: const HomePage());
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const HomePage(),
+    );
   }
 }

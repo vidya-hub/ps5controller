@@ -1,12 +1,6 @@
 import 'dart:developer';
 
-import 'package:control_pad/control_pad.dart';
-import 'package:control_pad/models/pad_button_item.dart';
-import 'package:control_pad/views/circle_view.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:ps5controller/common_functions.dart';
-import 'package:ps5controller/enums/buttonEnums.dart';
 import 'package:ps5controller/main.dart';
 
 class ButtonController extends StatefulWidget {
@@ -16,12 +10,9 @@ class ButtonController extends StatefulWidget {
   State<ButtonController> createState() => _ButtonControllerState();
 }
 
-class _ButtonControllerState extends State<ButtonController> {
-  @override
-  void initState() {
-    super.initState();
-  }
-
+class _ButtonControllerState extends State<ButtonController>
+    with SingleTickerProviderStateMixin {
+  final Duration duration = const Duration(milliseconds: 300);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -43,16 +34,28 @@ class _ButtonControllerState extends State<ButtonController> {
                 height: 200,
                 width: 300,
                 color: Colors.grey,
-                child: GestureDetector(
-                  child: getCircle(),
-                  onPanUpdate: (details) {
-                    var offSet = details.localPosition;
-                    Map<String, int>? finalOffSet = getFinalOffSet(offSet);
-                    if (finalOffSet != null) {
-                      log("$finalOffSet");
-                      socket.emit("joyStickData", finalOffSet);
-                    }
-                  },
+                child: Stack(
+                  children: [
+                    AnimatedPositioned(
+                      duration: duration,
+                      child: SizedBox(
+                        width: 300,
+                        height: 200,
+                        child: GestureDetector(
+                          child: getCircle(),
+                          onPanUpdate: (DragUpdateDetails details) {
+                            var offSet = details.localPosition;
+                            Map<String, int>? finalOffSet =
+                                getFinalOffSet(offSet);
+                            if (finalOffSet != null) {
+                              log("$finalOffSet");
+                              // socket.emit("joyStickData", finalOffSet);
+                            }
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               )
             ],
@@ -79,38 +82,8 @@ class _ButtonControllerState extends State<ButtonController> {
 
   Widget getCircle() {
     return const Icon(
-      Icons.circle,
-      size: 30,
-    );
-  }
-
-  Widget getJoyStickWidget(
-    BuildContext context,
-    String stickText,
-    JoystickDirectionCallback onDirectionChanged,
-  ) {
-    return Column(
-      children: [
-        SizedBox(
-          height: MediaQuery.of(context).size.height * 0.2,
-        ),
-        JoystickView(
-          onDirectionChanged: onDirectionChanged,
-          interval: const Duration(milliseconds: 100),
-          showArrows: true,
-        ),
-        SizedBox(
-          height: MediaQuery.of(context).size.height * 0.05,
-        ),
-        Text(
-          stickText,
-          style: const TextStyle(
-            fontSize: 15,
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ],
+      Icons.radio_button_checked_rounded,
+      size: 90,
     );
   }
 }
