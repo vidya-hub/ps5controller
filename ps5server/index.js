@@ -4,6 +4,7 @@ const httpServer = require("http").Server(app);
 const socketIO = require("socket.io")(httpServer);
 const bodyParser = require("body-parser");
 var robot = require("robotjs");
+var linear = require("everpolate").linear;
 app.use(bodyParser.json());
 app.get("/", (req, res) => {
   console.log("Hereee");
@@ -27,11 +28,9 @@ socketIO.on("connection", async (client) => {
   */
 
   client.on("joyStickData", async (joyStickData) => {
-    var mouseMap = getMousePosition();
-    // console.log(mouseMap);
-    // console.log(screenDimension.height, screenDimension.width);
-
-    // console.log(joyStickData);
+    var mousePosition = getInterPolateValues(joyStickData);
+    console.log(mousePosition);
+    robot.moveMouse(mousePosition.x, mousePosition.y);
   });
 
   client.on("sendGyroData", async (data) => {
@@ -55,10 +54,21 @@ httpServer.listen(port, function (err) {
   console.log("Listening on port", port);
 });
 
-var lerp = (current, target, factor) => {
-  let holder = current * (1 - factor) + target * factor;
-  holder = parseFloat(holder).toFixed(3);
-  return holder;
+var getInterPolateValues = function (joyStickData) {
+  var x_interp = linear(
+    joyStickData["x"],
+    [-150, 150],
+    [0, screenDimension.width]
+  );
+  var y_interp = linear(
+    joyStickData["y"],
+    [100, -100],
+    [0, screenDimension.height]
+  );
+  return {
+    x: x_interp,
+    y: y_interp,
+  };
 };
 
 function getMousePosition() {

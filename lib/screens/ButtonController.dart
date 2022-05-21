@@ -49,7 +49,10 @@ class _ButtonControllerState extends State<ButtonController>
                                 getFinalOffSet(offSet);
                             if (finalOffSet != null) {
                               log("$finalOffSet");
-                              // socket.emit("joyStickData", finalOffSet);
+                              Future.delayed(const Duration(milliseconds: 100),
+                                  () {
+                                socket.emit("joyStickData", finalOffSet);
+                              });
                             }
                           },
                         ),
